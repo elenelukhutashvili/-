@@ -73,7 +73,8 @@ program
         console.log(chalk.green('ხარჯი წარმატებით დაემატა:'));
         console.log(newExpense);
     });
-// 3. program
+// 3. 
+program
     .command('getById <id>')
     .description('ხარჯის ნახვა კონკრეტული ID-ით')
     .action((id) => {
