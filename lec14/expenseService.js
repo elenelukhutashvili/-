@@ -1,4 +1,4 @@
-const fs = require('fs');
+/*const fs = require('fs');
 const path = require('path');
 
 const FILE_NAME = path.join(__dirname, 'expenses.json');
@@ -77,4 +77,49 @@ module.exports = {
     createExpense,
     updateExpense,
     deleteExpense
+};*/
+
+const Expense = require('./expenseModel');
+
+const getExpenses = async (query) => {
+    const { category, amountFrom, amountTo } = query;
+    let mongoQuery = {};
+
+    if (category) {
+        const categoriesArray = category.split(',').map(cat => cat.trim().toLowerCase());
+        mongoQuery.category = { $in: categoriesArray };
+    }
+
+    if (amountFrom || amountTo) {
+        mongoQuery.amount = {};
+        if (amountFrom) mongoQuery.amount.$gte = Number(amountFrom);
+        if (amountTo) mongoQuery.amount.$lte = Number(amountTo);
+    }
+
+    return await Expense.find(mongoQuery);
 };
+
+const getTop5Expenses = async () => {
+    return await Expense.find().sort({ amount: -1 }).limit(5);
+};
+
+const createExpense = async (data) => {
+    const expense = new Expense(data);
+    return await expense.save();
+};
+
+const updateExpense = async (id, data) => {
+    return await Expense.findByIdAndUpdate(id, data, { new: true, runValidators: true });
+};
+
+const deleteExpense = async (id) => {
+    return await Expense.findByIdAndDelete(id);
+};
+
+module.exports = {
+    getExpenses,
+    getTop5Expenses,
+    createExpense,
+    updateExpense,
+    deleteExpense
+}
